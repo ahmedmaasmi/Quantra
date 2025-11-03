@@ -1,0 +1,40 @@
+services:
+  db:
+    image: postgres:15
+    container_name: quantra-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: quantra
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  server:
+    build: ./backend
+    container_name: quantra-server
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/quantra?schema=public
+      - PORT=5000
+      - NODE_ENV=production
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+  client:
+    build: ./frontend
+    container_name: quantra-client
+    ports:
+      - "3000:3000"
+    depends_on:
+      - server
+    environment:
+      - NEXT_PUBLIC_API_URL=http://server:5000
+
+volumes:
+  db_data:

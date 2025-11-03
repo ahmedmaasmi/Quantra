@@ -1,0 +1,58 @@
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+
+// Import routes
+import usersRouter from "./routes/users";
+import transactionsRouter from "./routes/transactions";
+import alertsRouter from "./routes/alerts";
+import forecastRouter from "./routes/forecast";
+import chatRouter from "./routes/chat";
+
+dotenv.config();
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Routes
+app.get("/", (_: express.Request, res: express.Response) => res.json({ 
+  message: "Quantra API running 🚀",
+  version: "1.0.0",
+  endpoints: {
+    users: "/api/users",
+    transactions: "/api/transactions",
+    alerts: "/api/alerts",
+    forecast: "/api/forecast",
+    chat: "/api/chat"
+  }
+}));
+
+app.use("/api/users", usersRouter);
+app.use("/api/transactions", transactionsRouter);
+app.use("/api/alerts", alertsRouter);
+app.use("/api/forecast", forecastRouter);
+app.use("/api/chat", chatRouter);
+
+// Error handling middleware
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error(err.stack);
+  res.status(500).json({ 
+    error: "Something went wrong!",
+    message: err.message 
+  });
+});
+
+// 404 handler
+app.use((req: express.Request, res: express.Response) => {
+  res.status(404).json({ error: "Route not found" });
+});
+
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`📊 Environment: ${process.env.NODE_ENV || "development"}`);
+});
