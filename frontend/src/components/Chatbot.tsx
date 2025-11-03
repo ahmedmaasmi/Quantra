@@ -5,11 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MessageSquare, X, Send, Bot } from "lucide-react";
 import { cn } from "@/lib/utils";
+import apiClient from "@/lib/api";
 
 export function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { role: "assistant", content: "Hi! I'm your FinSecure AI assistant. How can I help you today?" },
+    { role: "assistant", content: "Hi! I'm your Quantra AI assistant. How can I help you today?" },
   ]);
   const [input, setInput] = useState("");
 
@@ -19,21 +20,38 @@ export function Chatbot() {
     "Summarize AML case AML-2024-001",
   ];
 
-  const handleSend = () => {
-    if (!input.trim()) return;
+  const handleSend = async (messageText?: string) => {
+    const textToSend = messageText || input;
+    if (!textToSend.trim()) return;
     
-    setMessages([...messages, { role: "user", content: input }]);
+    setMessages((prev) => [...prev, { role: "user", content: textToSend }]);
     setInput("");
     
-    setTimeout(() => {
+    try {
+      const response = await apiClient.request<{ message: string; data?: any }>("/chat", {
+        method: "POST",
+        body: JSON.stringify({
+          message: textToSend,
+          userId: null, // You can get this from localStorage or context
+        }),
+      });
+      
       setMessages((prev) => [
         ...prev,
         {
           role: "assistant",
-          content: "I'm a demo chatbot. In production, I would analyze your request and provide detailed insights from your risk management data.",
+          content: response.message || "I'm processing your request...",
         },
       ]);
-    }, 1000);
+    } catch (error: any) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: "Sorry, I encountered an error. Please try again.",
+        },
+      ]);
+    }
   };
 
   return (
@@ -101,10 +119,7 @@ export function Chatbot() {
                 {exampleQuestions.map((q, idx) => (
                   <button
                     key={idx}
-                    onClick={() => {
-                      setInput(q);
-                      handleSend();
-                    }}
+                    onClick={() => handleSend(q)}
                     className="block w-full text-left text-sm p-3 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors"
                   >
                     {q}
@@ -120,10 +135,10 @@ export function Chatbot() {
                 placeholder="Ask me anything..."
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleSend()}
+                onKeyDown={(e) => e.key === "Enter" && handleSend()}
                 className="flex-1"
               />
-              <Button onClick={handleSend} size="icon">
+              <Button onClick={() => handleSend()} size="icon">
                 <Send className="h-4 w-4" />
               </Button>
             </div>

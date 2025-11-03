@@ -11,6 +11,7 @@ import forecastRouter from "./routes/forecast";
 import chatRouter from "./routes/chat";
 import fraudRouter from "./routes/fraud";
 import casesRouter from "./routes/cases";
+import dashboardRouter from "./routes/dashboard";
 
 dotenv.config();
 
@@ -26,16 +27,17 @@ app.use(express.urlencoded({ extended: true }));
 app.get("/", (_: express.Request, res: express.Response) => res.json({ 
   message: "Quantra API running 🚀",
   version: "1.0.0",
-  endpoints: {
-    auth: "/api/auth",
-    users: "/api/users",
-    transactions: "/api/transactions",
-    alerts: "/api/alerts",
-    forecast: "/api/forecast",
-    chat: "/api/chat",
-    fraud: "/api/fraud",
-    cases: "/api/cases"
-  }
+    endpoints: {
+      auth: "/api/auth",
+      users: "/api/users",
+      transactions: "/api/transactions",
+      alerts: "/api/alerts",
+      forecast: "/api/forecast",
+      chat: "/api/chat",
+      fraud: "/api/fraud",
+      cases: "/api/cases",
+      dashboard: "/api/dashboard"
+    }
 }));
 
 app.use("/api/auth", authRouter);
@@ -46,6 +48,9 @@ app.use("/api/forecast", forecastRouter);
 app.use("/api/chat", chatRouter);
 app.use("/api/fraud", fraudRouter);
 app.use("/api/cases", casesRouter);
+app.use("/api/dashboard", dashboardRouter);
+console.log("✅ Dashboard route registered at /api/dashboard");
+console.log("Dashboard router type:", typeof dashboardRouter);
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -58,6 +63,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 
 // 404 handler
 app.use((req: express.Request, res: express.Response) => {
+  console.log(`❌ 404 - Route not found: ${req.method} ${req.path}`);
   res.status(404).json({ error: "Route not found" });
 });
 

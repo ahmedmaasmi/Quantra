@@ -18,7 +18,7 @@ export function Sidebar() {
   return (
     <aside className="w-64 h-screen bg-sidebar border-r border-sidebar-border flex flex-col">
       <div className="p-6 border-b border-sidebar-border">
-        <h1 className="text-2xl font-bold text-primary">FinSecure</h1>
+        <h1 className="text-2xl font-bold text-primary">Quantra</h1>
         <p className="text-xs text-muted-foreground mt-1">Enterprise Risk Platform</p>
       </div>
 

@@ -4,6 +4,53 @@ import { PrismaClient } from '@prisma/client';
 const router = Router();
 const prisma = new PrismaClient();
 
+// Create alert
+router.post('/', async (req: Request, res: Response) => {
+  try {
+    const { userId, transactionId, type, message, severity, status } = req.body;
+    
+    if (!userId || !type || !message) {
+      return res.status(400).json({ 
+        error: 'userId, type, and message are required' 
+      });
+    }
+    
+    // Check if user exists
+    const user = await prisma.user.findUnique({
+      where: { id: userId }
+    });
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    // Create alert
+    const alert = await prisma.alert.create({
+      data: {
+        userId,
+        transactionId: transactionId || null,
+        type,
+        message,
+        severity: severity || 'medium',
+        status: status || 'open'
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            name: true
+          }
+        }
+      }
+    });
+    
+    res.status(201).json(alert);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Get all alerts
 router.get('/', async (req: Request, res: Response) => {
   try {
@@ -50,6 +97,30 @@ router.get('/:id', async (req: Request, res: Response) => {
     
     res.json(alert);
   } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update alert
+router.put('/:id', async (req: Request, res: Response) => {
+  try {
+    const { isRead, status, message } = req.body;
+    
+    const updateData: any = {};
+    if (isRead !== undefined) updateData.isRead = isRead;
+    if (status !== undefined) updateData.status = status;
+    if (message !== undefined) updateData.message = message;
+    
+    const alert = await prisma.alert.update({
+      where: { id: req.params.id },
+      data: updateData
+    });
+    
+    res.json(alert);
+  } catch (error: any) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({ error: 'Alert not found' });
+    }
     res.status(500).json({ error: error.message });
   }
 });

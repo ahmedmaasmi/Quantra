@@ -1,0 +1,12 @@
+id,name,email,password,kycStatus,phone
+usr_001,John Doe,john.doe@example.com,password123,approved,+1234567890
+usr_002,Jane Smith,jane.smith@example.com,password123,pending,+1234567891
+usr_003,Mike Johnson,mike.johnson@example.com,password123,approved,+1234567892
+usr_004,Sarah Wilson,sarah.wilson@example.com,password123,approved,+1234567893
+usr_005,David Lee,david.lee@example.com,password123,pending,+1234567894
+usr_006,Emily Chen,emily.chen@example.com,password123,approved,+1234567895
+usr_007,James Wilson,james.wilson@example.com,password123,rejected,+1234567896
+usr_008,Maria Garcia,maria.garcia@example.com,password123,approved,+1234567897
+usr_009,Robert Brown,robert.brown@example.com,password123,approved,+1234567898
+usr_010,Lisa Anderson,lisa.anderson@example.com,password123,pending,+1234567899
+

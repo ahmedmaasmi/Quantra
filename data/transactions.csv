@@ -1,0 +1,32 @@
+id,userId,amount,merchant,category,country,type,description,timestamp,fraudScore,isFlagged
+txn_001,usr_001,1500.00,Electronics Global Store,Electronics,USA,debit,Online purchase,2025-01-15T03:42:00Z,92,true
+txn_002,usr_001,250.50,Grocery Mart,Food,USA,debit,Grocery shopping,2025-01-14T10:15:00Z,15,false
+txn_003,usr_001,3200.00,Salary Payment,Income,USA,credit,Monthly salary,2025-01-01T00:00:00Z,5,false
+txn_004,usr_002,850.00,Restaurant Chain,Food,USA,debit,Dinner,2025-01-13T19:30:00Z,25,false
+txn_005,usr_002,1200.00,Online Retailer,Retail,USA,debit,Clothing purchase,2025-01-12T14:22:00Z,35,false
+txn_006,usr_003,15420.00,Unknown Merchant,Other,Moscow,debit,Large transaction,2025-01-15T02:30:00Z,95,true
+txn_007,usr_003,450.00,Gas Station,Transportation,USA,debit,Gas,2025-01-14T08:00:00Z,10,false
+txn_008,usr_004,8320.00,Suspicious Merchant,Other,Russia,debit,Unusual pattern,2025-01-14T23:45:00Z,78,true
+txn_009,usr_004,150.00,Coffee Shop,Food,USA,debit,Coffee,2025-01-14T09:15:00Z,8,false
+txn_010,usr_005,22100.00,Foreign Entity,Other,China,debit,High value,2025-01-13T16:20:00Z,82,true
+txn_011,usr_005,320.00,Book Store,Education,USA,debit,Books,2025-01-12T11:30:00Z,12,false
+txn_012,usr_006,5000.00,Salary Payment,Income,USA,credit,Monthly salary,2025-01-01T00:00:00Z,5,false
+txn_013,usr_006,1200.00,Utility Company,Utilities,USA,debit,Electric bill,2025-01-10T12:00:00Z,20,false
+txn_014,usr_006,800.00,Insurance Co,Insurance,USA,debit,Insurance payment,2025-01-08T15:00:00Z,18,false
+txn_015,usr_007,4500.00,Salary Payment,Income,USA,credit,Monthly salary,2025-01-01T00:00:00Z,5,false
+txn_016,usr_007,2500.00,Electronics Store,Electronics,USA,debit,New laptop,2025-01-05T13:20:00Z,45,false
+txn_017,usr_008,6000.00,Salary Payment,Income,USA,credit,Monthly salary,2025-01-01T00:00:00Z,5,false
+txn_018,usr_008,1800.00,Rent Payment,Housing,USA,debit,Monthly rent,2025-01-03T00:00:00Z,22,false
+txn_019,usr_008,350.00,Supermarket,Food,USA,debit,Groceries,2025-01-11T17:45:00Z,15,false
+txn_020,usr_009,2800.00,Salary Payment,Income,USA,credit,Monthly salary,2025-01-01T00:00:00Z,5,false
+txn_021,usr_009,950.00,Car Dealership,Transportation,USA,debit,Car payment,2025-01-07T10:00:00Z,30,false
+txn_022,usr_009,420.00,Restaurant,Food,USA,debit,Restaurant,2025-01-09T19:00:00Z,18,false
+txn_023,usr_010,3800.00,Salary Payment,Income,USA,credit,Monthly salary,2025-01-01T00:00:00Z,5,false
+txn_024,usr_010,1200.00,Online Shopping,Retail,USA,debit,Online purchase,2025-01-06T14:30:00Z,28,false
+txn_025,usr_001,1250.00,Unknown Merchant,Other,Russia,debit,Suspicious transaction,2025-01-15T04:15:00Z,88,true
+txn_026,usr_001,450.00,Pharmacy,Health,USA,debit,Medicine,2025-01-13T16:00:00Z,12,false
+txn_027,usr_002,3200.00,Salary Payment,Income,USA,credit,Monthly salary,2025-01-01T00:00:00Z,5,false
+txn_028,usr_003,750.00,Restaurant,Food,USA,debit,Lunch,2025-01-12T13:00:00Z,15,false
+txn_029,usr_004,4800.00,Salary Payment,Income,USA,credit,Monthly salary,2025-01-01T00:00:00Z,5,false
+txn_030,usr_005,2200.00,Salary Payment,Income,USA,credit,Monthly salary,2025-01-01T00:00:00Z,5,false
+

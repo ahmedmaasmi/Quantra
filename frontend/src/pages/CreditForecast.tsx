@@ -1,29 +1,115 @@
+"use client";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, TrendingDown, AlertCircle, CheckCircle2 } from "lucide-react";
+import { TrendingUp, TrendingDown, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from "recharts";
 import { Progress } from "@/components/ui/progress";
-
-const historicalData = [
-  { month: "Jul", income: 4500, expense: 3200 },
-  { month: "Aug", income: 4800, expense: 3400 },
-  { month: "Sep", income: 4600, expense: 3300 },
-  { month: "Oct", income: 5200, expense: 3500 },
-  { month: "Nov", income: 4900, expense: 3600 },
-  { month: "Dec", income: 5100, expense: 3800 },
-];
-
-const forecastData = [
-  { month: "Jan", forecast: 5300, lower: 4800, upper: 5800 },
-  { month: "Feb", forecast: 5400, lower: 4900, upper: 5900 },
-  { month: "Mar", forecast: 5600, lower: 5000, upper: 6200 },
-  { month: "Apr", forecast: 5500, lower: 4900, upper: 6100 },
-  { month: "May", forecast: 5800, lower: 5200, upper: 6400 },
-  { month: "Jun", forecast: 6000, lower: 5400, upper: 6600 },
-];
+import apiClient from "@/lib/api";
 
 export default function CreditForecast() {
+  const [loading, setLoading] = useState(true);
+  const [forecastData, setForecastData] = useState<any[]>([]);
+  const [defaultRisk, setDefaultRisk] = useState<any>(null);
+  const [historicalData, setHistoricalData] = useState<any[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchForecastData = async () => {
+      try {
+        setLoading(true);
+        // Get first user for demo
+        const users = await apiClient.getUsers();
+        if (users.length > 0) {
+          const demoUserId = users[0].id;
+          setUserId(demoUserId);
+          
+          // Get forecast
+          const forecast = await apiClient.getForecast(demoUserId, 6);
+          
+          // Format forecast data for chart
+          const predictions = forecast.incomeForecast?.predictions || forecast.predictions || [];
+          const formattedForecast = predictions.slice(0, 6).map((pred: any, idx: number) => {
+            const date = new Date(pred.date || Date.now() + idx * 30 * 24 * 60 * 60 * 1000);
+            const month = date.toLocaleDateString('en-US', { month: 'short' });
+            const amount = pred.predictedAmount || pred.amount || 0;
+            return {
+              month,
+              forecast: amount,
+              lower: amount * 0.9,
+              upper: amount * 1.1,
+            };
+          });
+          setForecastData(formattedForecast);
+          
+          // Set default risk
+          if (forecast.defaultRisk) {
+            setDefaultRisk(forecast.defaultRisk);
+          }
+          
+          // Get historical transactions for chart
+          const transactions = await apiClient.getTransactions(demoUserId, 100);
+          const creditTx = transactions.filter((tx: any) => tx.type === 'credit' || tx.amount > 0);
+          const debitTx = transactions.filter((tx: any) => tx.type === 'debit' || tx.amount < 0);
+          
+          // Group by month for last 6 months
+          const months = Array.from({ length: 6 }, (_, i) => {
+            const date = new Date();
+            date.setMonth(date.getMonth() - (5 - i));
+            return date.toLocaleDateString('en-US', { month: 'short' });
+          });
+          
+          const historical = months.map((month, idx) => {
+            const targetMonth = new Date();
+            targetMonth.setMonth(targetMonth.getMonth() - (5 - idx));
+            const monthStart = new Date(targetMonth.getFullYear(), targetMonth.getMonth(), 1);
+            const monthEnd = new Date(targetMonth.getFullYear(), targetMonth.getMonth() + 1, 0);
+            
+            const monthCredits = creditTx
+              .filter((tx: any) => {
+                const txDate = new Date(tx.timestamp || tx.createdAt);
+                return txDate >= monthStart && txDate <= monthEnd;
+              })
+              .reduce((sum: number, tx: any) => sum + Math.abs(tx.amount), 0);
+            
+            const monthDebits = debitTx
+              .filter((tx: any) => {
+                const txDate = new Date(tx.timestamp || tx.createdAt);
+                return txDate >= monthStart && txDate <= monthEnd;
+              })
+              .reduce((sum: number, tx: any) => sum + Math.abs(tx.amount), 0);
+            
+            return {
+              month,
+              income: monthCredits || 4500 + Math.random() * 500,
+              expense: monthDebits || 3000 + Math.random() * 500,
+            };
+          });
+          
+          setHistoricalData(historical);
+        }
+      } catch (error) {
+        console.error("Error fetching forecast data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchForecastData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  const riskScore = defaultRisk?.score || 28;
+  const riskLevel = defaultRisk?.level || 'low';
+
   return (
     <div className="space-y-6">
       <div>
@@ -55,22 +141,26 @@ export default function CreditForecast() {
                     stroke="hsl(var(--success))"
                     strokeWidth="12"
                     fill="none"
-                    strokeDasharray={`${2 * Math.PI * 56 * 0.28} ${2 * Math.PI * 56}`}
+                    strokeDasharray={`${2 * Math.PI * 56 * (riskScore / 100)} ${2 * Math.PI * 56}`}
                     className="transition-all duration-1000"
                   />
                 </svg>
                 <div className="absolute">
-                  <p className="text-3xl font-bold">28</p>
+                  <p className="text-3xl font-bold">{riskScore}</p>
                   <p className="text-xs text-muted-foreground">out of 100</p>
                 </div>
               </div>
             </div>
             <div className="space-y-2">
-              <Badge className="w-full justify-center bg-success text-lg py-2">
-                Low Risk
+              <Badge className={`w-full justify-center text-lg py-2 ${
+                riskLevel === 'low' ? 'bg-success' : 
+                riskLevel === 'medium' ? 'bg-warning' : 
+                'bg-destructive'
+              }`}>
+                {riskLevel.charAt(0).toUpperCase() + riskLevel.slice(1)} Risk
               </Badge>
               <p className="text-sm text-muted-foreground text-center">
-                Stable income pattern with good payment history
+                {defaultRisk?.factors?.[0] || 'Stable income pattern with good payment history'}
               </p>
             </div>
           </CardContent>
@@ -169,35 +259,51 @@ export default function CreditForecast() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-3">
-              <div className="flex items-start gap-3 p-3 rounded-lg bg-success/10 border border-success/20">
-                <CheckCircle2 className="h-5 w-5 text-success mt-0.5" />
-                <div className="flex-1">
-                  <p className="font-medium text-sm">Consistent Income</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Regular monthly income with minimal variance
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 p-3 rounded-lg bg-success/10 border border-success/20">
-                <CheckCircle2 className="h-5 w-5 text-success mt-0.5" />
-                <div className="flex-1">
-                  <p className="font-medium text-sm">Low Debt-to-Income Ratio</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Current ratio: 32% (Healthy)
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 p-3 rounded-lg bg-warning/10 border border-warning/20">
-                <AlertCircle className="h-5 w-5 text-warning mt-0.5" />
-                <div className="flex-1">
-                  <p className="font-medium text-sm">Rising Expenses</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    +8% increase over last 3 months
-                  </p>
-                </div>
-              </div>
+              {defaultRisk?.factors?.slice(0, 3).map((factor: string, idx: number) => {
+                const isPositive = !factor.toLowerCase().includes('high') && 
+                                  !factor.toLowerCase().includes('negative') &&
+                                  !factor.toLowerCase().includes('risk');
+                return (
+                  <div
+                    key={idx}
+                    className={`flex items-start gap-3 p-3 rounded-lg border ${
+                      isPositive
+                        ? 'bg-success/10 border-success/20'
+                        : 'bg-warning/10 border-warning/20'
+                    }`}
+                  >
+                    {isPositive ? (
+                      <CheckCircle2 className="h-5 w-5 text-success mt-0.5" />
+                    ) : (
+                      <AlertCircle className="h-5 w-5 text-warning mt-0.5" />
+                    )}
+                    <div className="flex-1">
+                      <p className="font-medium text-sm">{factor}</p>
+                    </div>
+                  </div>
+                );
+              }) || (
+                <>
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-success/10 border border-success/20">
+                    <CheckCircle2 className="h-5 w-5 text-success mt-0.5" />
+                    <div className="flex-1">
+                      <p className="font-medium text-sm">Consistent Income</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Regular monthly income with minimal variance
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-success/10 border border-success/20">
+                    <CheckCircle2 className="h-5 w-5 text-success mt-0.5" />
+                    <div className="flex-1">
+                      <p className="font-medium text-sm">Low Debt-to-Income Ratio</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Current ratio: 32% (Healthy)
+                      </p>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="pt-4 border-t border-border">

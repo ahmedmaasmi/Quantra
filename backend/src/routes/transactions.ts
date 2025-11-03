@@ -190,6 +190,33 @@ router.get('/:id', async (req: Request, res: Response) => {
   }
 });
 
+// Update transaction
+router.put('/:id', async (req: Request, res: Response) => {
+  try {
+    const { isFlagged, fraudScore, explanation } = req.body;
+    
+    const updateData: any = {};
+    if (isFlagged !== undefined) updateData.isFlagged = isFlagged;
+    if (fraudScore !== undefined) updateData.fraudScore = fraudScore;
+    if (explanation !== undefined) updateData.explanation = explanation;
+    
+    const transaction = await prisma.transaction.update({
+      where: { id: req.params.id },
+      data: updateData,
+      include: {
+        user: true
+      }
+    });
+    
+    res.json(transaction);
+  } catch (error: any) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({ error: 'Transaction not found' });
+    }
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Create transaction with fraud detection
 router.post('/', async (req: Request, res: Response) => {
   try {

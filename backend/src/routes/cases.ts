@@ -200,11 +200,20 @@ router.patch('/:id/resolve', async (req: Request, res: Response) => {
   try {
     const { notes } = req.body;
     
+    // First fetch the existing case to get current notes
+    const existingCase = await prisma.case.findUnique({
+      where: { id: req.params.id }
+    });
+    
+    if (!existingCase) {
+      return res.status(404).json({ error: 'Case not found' });
+    }
+    
     const case_ = await prisma.case.update({
       where: { id: req.params.id },
       data: {
         status: 'resolved',
-        notes: notes || case_.notes
+        notes: notes || existingCase.notes
       },
       include: {
         user: {
@@ -238,11 +247,20 @@ router.patch('/:id/close', async (req: Request, res: Response) => {
   try {
     const { notes } = req.body;
     
+    // First fetch the existing case to get current notes
+    const existingCase = await prisma.case.findUnique({
+      where: { id: req.params.id }
+    });
+    
+    if (!existingCase) {
+      return res.status(404).json({ error: 'Case not found' });
+    }
+    
     const case_ = await prisma.case.update({
       where: { id: req.params.id },
       data: {
         status: 'closed',
-        notes: notes || case_.notes
+        notes: notes || existingCase.notes
       },
       include: {
         user: {

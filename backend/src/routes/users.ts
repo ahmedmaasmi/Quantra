@@ -1,7 +1,20 @@
 import { Router, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
+import multer from 'multer';
 import { verifyKYC } from '../services/kycService';
+
+const upload = multer({ 
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, 'uploads/kyc/');
+    },
+    filename: (req, file, cb) => {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+      cb(null, file.fieldname + '-' + uniqueSuffix + '.' + file.originalname.split('.').pop());
+    }
+  })
+});
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -131,10 +144,17 @@ router.delete('/:id', async (req: Request, res: Response) => {
 });
 
 // Submit KYC result for a user
-router.post('/:id/kyc', async (req: Request, res: Response) => {
+router.post('/:id/kyc', upload.fields([
+  { name: 'documentImage', maxCount: 1 },
+  { name: 'faceImage', maxCount: 1 }
+]), async (req: Request, res: Response) => {
   try {
     const userId = req.params.id;
-    const { documentType, documentNumber, documentImage, faceImage, verified } = req.body;
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+    const { documentType, documentNumber, verified } = req.body;
+    
+    const documentImage = files?.documentImage?.[0]?.path;
+    const faceImage = files?.faceImage?.[0]?.path;
     
     // Check if user exists
     const user = await prisma.user.findUnique({

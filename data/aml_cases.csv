@@ -1,0 +1,22 @@
+id,userId,alertId,summary,status,assignedTo,notes,createdAt
+case_001,usr_001,alert_001,High-risk transaction detected: $1500.00 from Electronics Global Store,open,Sarah Chen,Initial review in progress,2024-06-15T10:30:00Z
+case_002,usr_003,alert_002,Large suspicious transaction: $15420.00 from Unknown Merchant,assigned,John Smith,Location mismatch detected,2024-07-20T14:15:00Z
+case_003,usr_004,alert_003,Unusual pattern detected: $8320.00 from Suspicious Merchant,open,Unassigned,Requires further investigation,2024-08-05T09:45:00Z
+case_004,usr_005,alert_004,High value transaction: $22100.00 from Foreign Entity,assigned,Maria Garcia,Cross-border transaction review,2024-09-12T16:20:00Z
+case_005,usr_001,alert_005,Suspicious transaction: $1250.00 from Unknown Merchant,resolved,Sarah Chen,False positive - cleared,2024-10-01T11:30:00Z
+case_006,usr_002,alert_006,Multiple rapid transactions detected,open,Unassigned,Monitoring transaction velocity,2024-10-15T08:00:00Z
+case_007,usr_006,alert_007,Unusual spending pattern detected,assigned,John Smith,Requires user verification,2024-10-20T13:45:00Z
+case_008,usr_007,alert_008,High-risk transaction from restricted merchant,open,Unassigned,Merchant blacklist check,2024-10-25T10:15:00Z
+case_009,usr_008,alert_009,Location anomaly detected,assigned,Maria Garcia,Geographic risk assessment,2024-11-01T15:30:00Z
+case_010,usr_009,alert_010,Transaction amount spike detected,open,Unassigned,Pattern analysis required,2024-11-05T09:00:00Z
+case_011,usr_010,alert_011,Multiple failed verification attempts,assigned,John Smith,KYC compliance review,2024-11-10T12:20:00Z
+case_012,usr_001,alert_012,Repeated high-risk transactions,open,Unassigned,Behavioral analysis,2024-11-12T14:50:00Z
+case_013,usr_003,alert_013,International transaction from high-risk country,assigned,Sarah Chen,Sanctions screening,2024-11-15T10:30:00Z
+case_014,usr_004,alert_014,Transaction velocity anomaly,open,Unassigned,Rate limit exceeded,2024-11-18T16:00:00Z
+case_015,usr_005,alert_015,Large cash transaction pattern,assigned,Maria Garcia,Cash transaction reporting,2024-11-20T11:45:00Z
+case_016,usr_006,alert_016,Unusual merchant category,open,Unassigned,Merchant verification required,2024-11-22T09:30:00Z
+case_017,usr_007,alert_017,Multiple account linkage,assigned,John Smith,Account relationship analysis,2024-11-25T13:15:00Z
+case_018,usr_008,alert_018,Transaction time anomaly,open,Unassigned,Off-hours transaction review,2024-11-28T08:20:00Z
+case_019,usr_009,alert_019,Amount deviation from pattern,assigned,Sarah Chen,Statistical analysis,2024-12-01T15:00:00Z
+case_020,usr_010,alert_020,Device fingerprint mismatch,open,Unassigned,Security review,2024-12-03T10:30:00Z
+
