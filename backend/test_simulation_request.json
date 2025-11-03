@@ -1,0 +1,15 @@
+{
+  "name": "Test Prediction Simulation",
+  "data": {
+    "values": [100, 150, 200, 250, 300],
+    "features": ["sales", "revenue", "growth"],
+    "timeframe": "monthly"
+  },
+  "type": "prediction",
+  "parameters": {
+    "epochs": 100,
+    "learningRate": 0.01,
+    "batchSize": 32
+  }
+}
+

@@ -17,7 +17,7 @@ A financial technology platform with fraud detection, AI-powered forecasting, an
 - **Node.js** + **Express.js** - REST API server
 - **TypeScript** - Type safety
 - **Prisma** - Database ORM
-- **PostgreSQL** - Database
+- **SQLite** - Database
 - **Python** - ML services (fraud detection, forecasting)
 
 ### Frontend
@@ -28,25 +28,12 @@ A financial technology platform with fraud detection, AI-powered forecasting, an
 ## Prerequisites
 
 - Node.js 20+
-- Docker Desktop
 - Python 3.13+ (for ML services)
 - npm or yarn
 
 ## Quick Start
 
-### 1. Start Database
-
-```powershell
-docker-compose up -d db
-```
-
-This starts PostgreSQL with:
-- **User**: postgres
-- **Password**: postgres
-- **Database**: quantra
-- **Port**: 5432
-
-### 2. Setup Backend
+### 1. Setup Backend
 
 ```powershell
 cd backend
@@ -54,15 +41,15 @@ cd backend
 # Install dependencies
 npm install
 
-# Create .env file (already created, verify it exists)
-# DATABASE_URL="postgresql://postgres:postgres@localhost:5432/quantra?schema=public"
+# Create .env file with SQLite database URL
+# DATABASE_URL="file:./dev.db"
 # PORT=5000
 # NODE_ENV=development
 
 # Generate Prisma Client
 npm run prisma:generate
 
-# Run migrations
+# Run migrations (creates SQLite database file)
 npm run prisma:migrate
 
 # Start development server
@@ -71,7 +58,7 @@ npm run dev
 
 The backend API will be available at `http://localhost:5000`
 
-### 3. Setup Frontend
+### 2. Setup Frontend
 
 ```powershell
 cd frontend
@@ -127,29 +114,6 @@ The frontend will be available at `http://localhost:3000`
 
 See `backend/prisma/schema.prisma` for full schema details.
 
-## Docker Setup
-
-Run the entire stack with Docker:
-
-```powershell
-# Build and start all services
-docker-compose up -d
-
-# View logs
-docker-compose logs -f
-
-# Stop all services
-docker-compose down
-
-# Stop and remove volumes
-docker-compose down -v
-```
-
-Services:
-- **db** - PostgreSQL database (port 5432)
-- **server** - Backend API (port 5000)
-- **client** - Frontend application (port 3000)
-
 ## Development
 
 ### Backend Development
@@ -189,7 +153,7 @@ npm start
 
 ### Backend (.env)
 ```
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/quantra?schema=public"
+DATABASE_URL="file:./dev.db"
 PORT=5000
 NODE_ENV=development
 ```
@@ -219,15 +183,12 @@ Quantra/
 │   │   │   ├── forecastService.ts
 │   │   │   └── kycService.ts
 │   │   └── index.ts           # Entry point
-│   ├── Dockerfile
 │   ├── package.json
 │   └── tsconfig.json
 ├── frontend/
 │   ├── src/
 │   │   └── app/               # Next.js app directory
-│   ├── Dockerfile
 │   └── package.json
-├── docker-compose.yml
 └── README.md
 ```
 
@@ -237,14 +198,14 @@ Quantra/
 
 If you get "Missing DATABASE_URL":
 1. Ensure `.env` exists in `backend/` directory
-2. Verify DATABASE_URL matches your database configuration
-3. Check Docker is running: `docker ps`
+2. Verify DATABASE_URL is set to `file:./dev.db` or your preferred path
+3. The database file will be created automatically when you run migrations
 
 ### Database Connection Error
 
-1. Verify PostgreSQL container is running: `docker-compose ps`
-2. Check container logs: `docker-compose logs db`
-3. Ensure port 5432 is not in use by another service
+1. Ensure the database file path in DATABASE_URL is correct
+2. Check file permissions - ensure the backend directory is writable
+3. If the database file is corrupted, delete it and run migrations again
 
 ### Module Not Found Errors
 

@@ -3,11 +3,14 @@ import cors from "cors";
 import dotenv from "dotenv";
 
 // Import routes
+import authRouter from "./routes/auth";
 import usersRouter from "./routes/users";
 import transactionsRouter from "./routes/transactions";
 import alertsRouter from "./routes/alerts";
 import forecastRouter from "./routes/forecast";
 import chatRouter from "./routes/chat";
+import fraudRouter from "./routes/fraud";
+import casesRouter from "./routes/cases";
 
 dotenv.config();
 
@@ -24,19 +27,25 @@ app.get("/", (_: express.Request, res: express.Response) => res.json({
   message: "Quantra API running 🚀",
   version: "1.0.0",
   endpoints: {
+    auth: "/api/auth",
     users: "/api/users",
     transactions: "/api/transactions",
     alerts: "/api/alerts",
     forecast: "/api/forecast",
-    chat: "/api/chat"
+    chat: "/api/chat",
+    fraud: "/api/fraud",
+    cases: "/api/cases"
   }
 }));
 
+app.use("/api/auth", authRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/transactions", transactionsRouter);
 app.use("/api/alerts", alertsRouter);
 app.use("/api/forecast", forecastRouter);
 app.use("/api/chat", chatRouter);
+app.use("/api/fraud", fraudRouter);
+app.use("/api/cases", casesRouter);
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
