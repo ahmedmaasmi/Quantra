@@ -19,4 +19,24 @@ case_017,usr_007,alert_017,Multiple account linkage,assigned,John Smith,Account 
 case_018,usr_008,alert_018,Transaction time anomaly,open,Unassigned,Off-hours transaction review,2024-11-28T08:20:00Z
 case_019,usr_009,alert_019,Amount deviation from pattern,assigned,Sarah Chen,Statistical analysis,2024-12-01T15:00:00Z
 case_020,usr_010,alert_020,Device fingerprint mismatch,open,Unassigned,Security review,2024-12-03T10:30:00Z
+case_021,usr_013,alert_021,Large crypto purchase: $18500.00 from Cryptocurrency Exchange,assigned,Sarah Chen,Crypto transaction monitoring,2024-12-05T09:15:00Z
+case_022,usr_016,alert_022,Suspicious transfer: $12500.00 to offshore account,open,Unassigned,Offshore account review,2024-12-07T14:20:00Z
+case_023,usr_019,alert_023,High-risk international transaction: $7650.00 to Iran,assigned,John Smith,Sanctions violation check,2024-12-08T11:00:00Z
+case_024,usr_023,alert_024,High-risk transaction: $9200.00 from North Korea,open,Unassigned,Critical sanctions screening,2024-12-10T16:45:00Z
+case_025,usr_026,alert_025,Suspicious large transfer: $18200.00 to Cayman Islands,assigned,Maria Garcia,Offshore account investigation,2024-12-12T10:30:00Z
+case_026,usr_029,alert_026,Large suspicious payment: $14800.00 to Russia,open,Unassigned,International transaction review,2024-12-14T13:15:00Z
+case_027,usr_011,alert_027,Multiple rapid transactions detected,assigned,John Smith,Transaction velocity analysis,2024-12-15T08:30:00Z
+case_028,usr_014,alert_028,Unusual spending pattern detected,open,Unassigned,Behavioral analysis required,2024-12-16T15:00:00Z
+case_029,usr_017,alert_029,Transaction amount spike detected,assigned,Sarah Chen,Statistical deviation analysis,2024-12-17T11:20:00Z
+case_030,usr_020,alert_030,Multiple high-value transactions,open,Unassigned,Pattern recognition,2024-12-18T09:45:00Z
+case_031,usr_021,alert_031,Unusual merchant category pattern,assigned,Maria Garcia,Merchant analysis,2024-12-19T14:00:00Z
+case_032,usr_024,alert_032,Transaction time anomaly detected,open,Unassigned,Off-hours activity review,2024-12-20T10:15:00Z
+case_033,usr_027,alert_033,Geographic location mismatch,assigned,John Smith,Location verification,2024-12-21T13:30:00Z
+case_034,usr_030,alert_034,High-value travel transaction pattern,open,Unassigned,Travel transaction review,2024-12-22T11:00:00Z
+case_035,usr_012,alert_035,Multiple account activity spike,assigned,Sarah Chen,Account relationship mapping,2024-12-23T09:20:00Z
+case_036,usr_015,alert_036,Unusual transaction frequency,open,Unassigned,Velocity monitoring,2024-12-24T15:45:00Z
+case_037,usr_018,alert_037,Transaction amount deviation,assigned,Maria Garcia,Statistical analysis,2024-12-25T10:30:00Z
+case_038,usr_022,alert_038,Merchant blacklist match,open,Unassigned,Merchant verification,2024-12-26T14:15:00Z
+case_039,usr_025,alert_039,Device location anomaly,assigned,John Smith,Security review,2024-12-27T11:30:00Z
+case_040,usr_028,alert_040,Cross-border transaction pattern,open,Unassigned,International compliance check,2024-12-28T09:00:00Z
 
