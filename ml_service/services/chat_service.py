@@ -17,10 +17,10 @@ class ChatService:
     def __init__(self):
         self.chatbot_model = None
         self.sentiment_model = None
-        self.openrouter_api_key = os.getenv("OPENROUTER_API_KEY", "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")
-        self.openrouter_url = "https://openrouter.ai/api/v1/chat/completions"
-        self.site_url = os.getenv("SITE_URL", "https://quantra.com")
-        self.site_name = os.getenv("SITE_NAME", "Quantra")
+        self.openrouter_api_key = os.getenv("OPENROUTER_API_KEY")
+        self.openrouter_url = os.getenv("OPENROUTER_URL")
+        self.site_url = os.getenv("SITE_URL")
+        self.site_name = os.getenv("SITE_NAME")
         self.load_models()
     
     def load_models(self):
