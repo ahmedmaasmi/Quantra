@@ -3,11 +3,19 @@ ML Service API for Quantra
 FastAPI service for serving ML model predictions
 """
 
+import os
+import sys
+from pathlib import Path
+
+# Add parent directory to path to allow imports when running from ml_service directory
+BASE_DIR = Path(__file__).resolve().parent.parent
+if str(BASE_DIR) not in sys.path:
+    sys.path.insert(0, str(BASE_DIR))
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, List, Dict, Any
-import os
 from dotenv import load_dotenv
 
 # Import model inference modules

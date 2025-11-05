@@ -7,7 +7,8 @@ import os
 from typing import Dict, Any, Optional
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+# Go up to Quantra directory (parent of ml_service)
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 MODELS_DIR = BASE_DIR / "models"
 
 class ChatService:

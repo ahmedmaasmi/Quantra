@@ -35,11 +35,11 @@ async function callMLService<T>(
     const response = await fetch(url, options);
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+      const errorData = (await response.json().catch(() => ({ error: 'Unknown error' }))) as { detail?: string; error?: string };
       throw new Error(errorData.detail || errorData.error || `ML service error: ${response.statusText}`);
     }
 
-    return await response.json();
+    return await response.json() as T;
   } catch (error: any) {
     // If ML service is not available, log warning and return null
     if (error.message?.includes('fetch') || error.message?.includes('ECONNREFUSED')) {
@@ -63,25 +63,51 @@ export async function isMLServiceAvailable(): Promise<boolean> {
 }
 
 /**
+ * Fraud Detection API types
+ */
+export interface FraudDetectionResponse {
+  score: number;
+  fraudulent: boolean;
+  riskLevel: 'low' | 'medium' | 'high';
+  recommendations: string[];
+}
+
+export interface FraudExplainResponse {
+  score: number;
+  fraudulent: boolean;
+  riskLevel: 'low' | 'medium' | 'high';
+  recommendations: string[];
+  topFeatures?: Array<{ feature: string; contribution: number }>;
+  explanation?: string;
+}
+
+export interface FraudAnomalyResponse {
+  isAnomaly: boolean;
+  anomalyScore: number;
+  threshold: number;
+  features?: Array<{ feature: string; value: number; contribution: number }>;
+}
+
+/**
  * Fraud Detection API calls
  */
 export const fraudAPI = {
-  detect: async (transaction: any, userHistory?: any[]) => {
-    return callMLService('/api/fraud/detect', 'POST', {
+  detect: async (transaction: any, userHistory?: any[]): Promise<FraudDetectionResponse | null> => {
+    return callMLService<FraudDetectionResponse>('/api/fraud/detect', 'POST', {
       transaction,
       user_history: userHistory,
     });
   },
   
-  explain: async (transaction: any, userHistory?: any[]) => {
-    return callMLService('/api/fraud/explain', 'POST', {
+  explain: async (transaction: any, userHistory?: any[]): Promise<FraudExplainResponse | null> => {
+    return callMLService<FraudExplainResponse>('/api/fraud/explain', 'POST', {
       transaction,
       user_history: userHistory,
     });
   },
   
-  detectAnomaly: async (transaction: any, userHistory?: any[]) => {
-    return callMLService('/api/fraud/anomaly', 'POST', {
+  detectAnomaly: async (transaction: any, userHistory?: any[]): Promise<FraudAnomalyResponse | null> => {
+    return callMLService<FraudAnomalyResponse>('/api/fraud/anomaly', 'POST', {
       transaction,
       user_history: userHistory,
     });
@@ -89,11 +115,31 @@ export const fraudAPI = {
 };
 
 /**
+ * Forecast API types
+ */
+export interface ForecastGenerateResponse {
+  predictions: Array<{
+    date: string;
+    predictedAmount: number;
+    confidence: number;
+  }>;
+  accuracy: number;
+  model: string;
+}
+
+export interface ForecastDefaultRiskResponse {
+  score: number;
+  level: 'low' | 'medium' | 'high';
+  factors: string[];
+  probability: number;
+}
+
+/**
  * Forecast API calls
  */
 export const forecastAPI = {
-  generate: async (userId: string | undefined, period: string, months: number, historicalData?: any[]) => {
-    return callMLService('/api/forecast/generate', 'POST', {
+  generate: async (userId: string | undefined, period: string, months: number, historicalData?: any[]): Promise<ForecastGenerateResponse | null> => {
+    return callMLService<ForecastGenerateResponse>('/api/forecast/generate', 'POST', {
       userId,
       period,
       months,
@@ -101,8 +147,8 @@ export const forecastAPI = {
     });
   },
   
-  calculateDefaultRisk: async (userId: string, transactions: any[], averageIncome: number) => {
-    return callMLService('/api/forecast/default-risk', 'POST', {
+  calculateDefaultRisk: async (userId: string, transactions: any[], averageIncome: number): Promise<ForecastDefaultRiskResponse | null> => {
+    return callMLService<ForecastDefaultRiskResponse>('/api/forecast/default-risk', 'POST', {
       userId,
       transactions,
       averageIncome,
@@ -111,11 +157,42 @@ export const forecastAPI = {
 };
 
 /**
+ * KYC API types
+ */
+export interface KYCVerifyResponse {
+  verified: boolean;
+  score: number;
+  checks: {
+    documentValid: boolean;
+    faceMatch: boolean;
+    informationMatch: boolean;
+  };
+  recommendations: string[];
+  extractedFields?: Record<string, any>;
+}
+
+export interface KYCExtractTextResponse {
+  success: boolean;
+  extractedText?: Record<string, any>;
+  confidence?: number;
+  error?: string;
+}
+
+export interface KYCMatchFaceResponse {
+  success: boolean;
+  matched: boolean;
+  score: number;
+  distance?: number;
+  threshold?: number;
+  error?: string;
+}
+
+/**
  * KYC API calls
  */
 export const kycAPI = {
-  verify: async (userId: string, documentType: string, documentNumber?: string, documentImage?: string, faceImage?: string) => {
-    return callMLService('/api/kyc/verify', 'POST', {
+  verify: async (userId: string, documentType: string, documentNumber?: string, documentImage?: string, faceImage?: string): Promise<KYCVerifyResponse | null> => {
+    return callMLService<KYCVerifyResponse>('/api/kyc/verify', 'POST', {
       userId,
       documentType,
       documentNumber,
@@ -124,15 +201,15 @@ export const kycAPI = {
     });
   },
   
-  extractText: async (documentImage: string, documentType: string) => {
-    return callMLService('/api/kyc/ocr', 'POST', {
+  extractText: async (documentImage: string, documentType: string): Promise<KYCExtractTextResponse | null> => {
+    return callMLService<KYCExtractTextResponse>('/api/kyc/ocr', 'POST', {
       documentImage,
       documentType,
     });
   },
   
-  matchFace: async (documentImage: string, faceImage: string) => {
-    return callMLService('/api/kyc/face-match', 'POST', {
+  matchFace: async (documentImage: string, faceImage: string): Promise<KYCMatchFaceResponse | null> => {
+    return callMLService<KYCMatchFaceResponse>('/api/kyc/face-match', 'POST', {
       documentImage,
       faceImage,
     });

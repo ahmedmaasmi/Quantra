@@ -85,7 +85,7 @@ router.post('/import', upload.single('file'), async (req: Request, res: Response
         }
         
         // Analyze transaction for fraud
-        const analysis = analyzeTransaction({
+        const analysis = await analyzeTransaction({
           amount: Math.abs(amount),
           location: country || undefined,
           type,
@@ -229,7 +229,7 @@ router.post('/', async (req: Request, res: Response) => {
     }
     
     // Analyze transaction for fraud
-    const analysis = analyzeTransaction({
+    const analysis = await analyzeTransaction({
       amount,
       location,
       type,

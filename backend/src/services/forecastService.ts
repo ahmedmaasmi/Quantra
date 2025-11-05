@@ -4,6 +4,7 @@ export interface ForecastRequest {
   userId?: string;
   period: 'daily' | 'weekly' | 'monthly';
   months: number;
+  historical_data?: any[];
 }
 
 export interface ForecastResult {

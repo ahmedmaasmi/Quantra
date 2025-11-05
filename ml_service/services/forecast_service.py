@@ -12,7 +12,8 @@ from typing import Dict, Any, Optional, List
 from pathlib import Path
 from datetime import datetime, timedelta
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+# Go up to Quantra directory (parent of ml_service)
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 MODELS_DIR = BASE_DIR / "models"
 
 class ForecastService:
