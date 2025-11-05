@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { MessageSquare, X, Send, Bot } from "lucide-react";
 import { cn } from "@/lib/utils";
 import apiClient from "@/lib/api";
@@ -13,6 +14,7 @@ export function Chatbot() {
     { role: "assistant", content: "Hi! I'm your Quantra AI assistant. How can I help you today?" },
   ]);
   const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const exampleQuestions = [
     "What's the current fraud detection rate?",
@@ -26,6 +28,7 @@ export function Chatbot() {
     
     setMessages((prev) => [...prev, { role: "user", content: textToSend }]);
     setInput("");
+    setIsLoading(true);
     
     try {
       const response = await apiClient.request<{ message: string; data?: any }>("/chat", {
@@ -51,6 +54,8 @@ export function Chatbot() {
           content: "Sorry, I encountered an error. Please try again.",
         },
       ]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -112,6 +117,21 @@ export function Chatbot() {
                 </div>
               </div>
             ))}
+
+            {isLoading && (
+              <div className="flex gap-3 justify-start">
+                <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
+                  <Bot className="h-5 w-5" />
+                </div>
+                <div className="rounded-2xl px-4 py-2 max-w-[80%] bg-secondary">
+                  <div className="space-y-2">
+                    <Skeleton className="h-3 w-[200px]" />
+                    <Skeleton className="h-3 w-[150px]" />
+                    <Skeleton className="h-3 w-[180px]" />
+                  </div>
+                </div>
+              </div>
+            )}
 
             {messages.length === 1 && (
               <div className="space-y-2">

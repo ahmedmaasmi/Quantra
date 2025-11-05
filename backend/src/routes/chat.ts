@@ -1,10 +1,11 @@
 import { Router, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { chatAPI } from '../services/mlApiClient';
 
 const router = Router();
 const prisma = new PrismaClient();
 
-// Chat endpoint for AI interactions with rule-based responses
+// Chat endpoint for AI interactions using OpenRouter API via ML service, with rule-based fallback
 router.post('/', async (req: Request, res: Response) => {
   try {
     const { message, userId, context } = req.body;
@@ -13,6 +14,24 @@ router.post('/', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Message is required' });
     }
     
+    // Try to use ML service (OpenRouter API) first
+    try {
+      const mlResponse = await chatAPI.message(message, userId, context);
+      if (mlResponse && mlResponse.message) {
+        return res.json({
+          message: mlResponse.message,
+          timestamp: mlResponse.timestamp || new Date().toISOString(),
+          userId,
+          context,
+          data: mlResponse.data || null
+        });
+      }
+    } catch (mlError) {
+      // ML service not available or error, fall back to rule-based
+      console.warn('ML service unavailable, using rule-based responses:', mlError);
+    }
+    
+    // Fallback to rule-based responses
     const messageLower = message.toLowerCase().trim();
     
     // Rule-based response system

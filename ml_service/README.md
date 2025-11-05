@@ -21,7 +21,11 @@ Create a `.env` file in `ml_service/` directory:
 ML_SERVICE_PORT=5001
 ML_SERVICE_HOST=0.0.0.0
 MODELS_DIR=models
+
+
 ```
+
+**Note:** The OpenRouter API key is already configured with a default value in the code, but you can override it via environment variables for better security.
 
 ### 3. Train Models (Optional)
 
@@ -74,7 +78,9 @@ uvicorn ml_service.app:app --host 0.0.0.0 --port 5001
 - `POST /api/simulation/process` - Process AI simulation
 
 ### Chat
-- `POST /api/chat/message` - Process chat message
+- `POST /api/chat/message` - Process chat message using OpenRouter API (nvidia/nemotron-nano-12b-v2-vl:free model)
+
+The chat service uses OpenRouter API for AI-powered responses. If the API is unavailable, it falls back to rule-based responses.
 
 ## Integration with Backend
 

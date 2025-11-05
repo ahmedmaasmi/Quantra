@@ -231,11 +231,22 @@ export const simulationAPI = {
 };
 
 /**
+ * Chat API types
+ */
+export interface ChatMessageResponse {
+  message: string;
+  timestamp: string;
+  userId?: string;
+  context?: any;
+  data?: any;
+}
+
+/**
  * Chat API calls
  */
 export const chatAPI = {
-  message: async (message: string, userId?: string, context?: any) => {
-    return callMLService('/api/chat/message', 'POST', {
+  message: async (message: string, userId?: string, context?: any): Promise<ChatMessageResponse | null> => {
+    return callMLService<ChatMessageResponse>('/api/chat/message', 'POST', {
       message,
       userId,
       context,

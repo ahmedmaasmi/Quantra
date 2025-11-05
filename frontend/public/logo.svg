@@ -1,0 +1,50 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="shieldGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#14b8a6;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#14b8a6;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#334155;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#334155;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="glassGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#a7f3d0;stop-opacity:0.3" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Shield shape with outline -->
+  <path d="M 100 20 L 160 50 L 160 120 Q 160 150 100 170 Q 40 150 40 120 L 40 50 Z" 
+        fill="url(#shieldGradient)" 
+        stroke="#0d9488" 
+        stroke-width="4"/>
+  
+  <!-- Shield inner shadow -->
+  <path d="M 100 25 L 155 52 L 155 118 Q 155 145 100 163 Q 45 145 45 118 L 45 52 Z" 
+        fill="none" 
+        stroke="#0d9488" 
+        stroke-width="1" 
+        opacity="0.3"/>
+  
+  <!-- Magnifying glass lens -->
+  <circle cx="110" cy="90" r="28" 
+          fill="url(#glassGradient)" 
+          stroke="#14b8a6" 
+          stroke-width="3"/>
+  
+  <!-- Lens highlight -->
+  <ellipse cx="105" cy="85" rx="8" ry="12" 
+           fill="#a7f3d0" 
+           opacity="0.6"/>
+  
+  <!-- Magnifying glass handle -->
+  <path d="M 135 115 L 150 135 L 145 140 L 130 120 Z" 
+        fill="#14b8a6" 
+        stroke="#0d9488" 
+        stroke-width="2"/>
+  
+  <!-- Handle shadow -->
+  <path d="M 137 117 L 148 133 L 143 138 L 132 122 Z" 
+        fill="#0d9488" 
+        opacity="0.5"/>
+</svg>
+

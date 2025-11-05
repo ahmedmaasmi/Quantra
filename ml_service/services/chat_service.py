@@ -1,9 +1,11 @@
 """
 Chat Service
-Handles conversational AI and NLP tasks
+Handles conversational AI and NLP tasks using OpenRouter API
 """
 
 import os
+import json
+import aiohttp
 from typing import Dict, Any, Optional
 from pathlib import Path
 
@@ -15,6 +17,10 @@ class ChatService:
     def __init__(self):
         self.chatbot_model = None
         self.sentiment_model = None
+        self.openrouter_api_key = os.getenv("OPENROUTER_API_KEY", "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")
+        self.openrouter_url = "https://openrouter.ai/api/v1/chat/completions"
+        self.site_url = os.getenv("SITE_URL", "https://quantra.com")
+        self.site_name = os.getenv("SITE_NAME", "Quantra")
         self.load_models()
     
     def load_models(self):
@@ -29,21 +35,117 @@ class ChatService:
         userId: Optional[str] = None,
         context: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
-        """Process chat message with AI"""
+        """Process chat message with AI using OpenRouter"""
+        try:
+            # Try to use OpenRouter API first
+            response = await self._call_openrouter_api(message, userId, context)
+            return {
+                'message': response,
+                'timestamp': self._get_timestamp(),
+                'userId': userId,
+                'context': context
+            }
+        except Exception as e:
+            # Fallback to rule-based responses if API fails
+            print(f"OpenRouter API error: {e}, falling back to rule-based responses")
+            response = self._get_rule_based_response(message, userId, context)
+            return {
+                'message': response,
+                'timestamp': self._get_timestamp(),
+                'userId': userId,
+                'context': context
+            }
+    
+    async def _call_openrouter_api(
+        self,
+        message: str,
+        userId: Optional[str],
+        context: Optional[Dict[str, Any]]
+    ) -> str:
+        """Call OpenRouter API for chat completion"""
+        # Build system message with context
+        system_message = self._build_system_message(userId, context)
+        
+        messages = [
+            {
+                "role": "system",
+                "content": system_message
+            },
+            {
+                "role": "user",
+                "content": message
+            }
+        ]
+        
+        payload = {
+            "model": "nvidia/nemotron-nano-12b-v2-vl:free",
+            "messages": messages
+        }
+        
+        headers = {
+            "Authorization": f"Bearer {self.openrouter_api_key}",
+            "HTTP-Referer": self.site_url,
+            "X-Title": self.site_name,
+            "Content-Type": "application/json"
+        }
+        
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                self.openrouter_url,
+                headers=headers,
+                json=payload
+            ) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    if "choices" in data and len(data["choices"]) > 0:
+                        return data["choices"][0]["message"]["content"]
+                    else:
+                        raise Exception("No choices in API response")
+                else:
+                    error_text = await response.text()
+                    raise Exception(f"OpenRouter API error: {response.status} - {error_text}")
+    
+    def _build_system_message(
+        self,
+        userId: Optional[str],
+        context: Optional[Dict[str, Any]]
+    ) -> str:
+        """Build system message with context about Quantra"""
+        system_msg = """You are a helpful AI assistant for Quantra, a financial fraud detection and transaction analysis platform. 
+You help users with:
+- Fraud detection and explanation
+- Transaction analysis
+- Spending forecasts
+- Risk assessment
+- Answering questions about flagged transactions
+
+Be concise, helpful, and professional."""
+        
+        if userId:
+            system_msg += f"\n\nThe user's ID is: {userId}"
+        
+        if context:
+            context_str = json.dumps(context, indent=2)
+            system_msg += f"\n\nAdditional context:\n{context_str}"
+        
+        return system_msg
+    
+    def _get_rule_based_response(
+        self,
+        message: str,
+        userId: Optional[str],
+        context: Optional[Dict[str, Any]]
+    ) -> str:
+        """Fallback rule-based responses"""
         message_lower = message.lower().strip()
-        
-        # Simple rule-based responses (fallback)
-        # In production, this would use an LLM API or local model
-        
-        response = ""
         
         # Check for specific intents
         if any(word in message_lower for word in ['fraud', 'flagged', 'suspicious']):
-            response = "I can help you understand fraud detection. Please provide your user ID for specific information about your account."
+            return "I can help you understand fraud detection. Please provide your user ID for specific information about your account."
         elif any(word in message_lower for word in ['forecast', 'prediction', 'spending']):
-            response = "I can help you generate spending or income forecasts. Would you like me to create a 3-month forecast?"
+            return "I can help you generate spending or income forecasts. Would you like me to create a 3-month forecast?"
         elif any(word in message_lower for word in ['help', 'what can you do']):
-            response = """I can help you with:
+            return """I can help you with:
 - Fraud detection and explanation
 - Transaction analysis
 - Spending forecasts
@@ -52,33 +154,7 @@ class ChatService:
 
 What would you like to know?"""
         else:
-            response = "I can help you analyze your transactions, detect fraud, and generate forecasts. What would you like to know?"
-        
-        # If using cloud API (OpenAI, Anthropic, etc.)
-        # response = await self._call_llm_api(message, userId, context)
-        
-        return {
-            'message': response,
-            'timestamp': self._get_timestamp(),
-            'userId': userId,
-            'context': context
-        }
-    
-    async def _call_llm_api(
-        self,
-        message: str,
-        userId: Optional[str],
-        context: Optional[Dict[str, Any]]
-    ) -> str:
-        """Call external LLM API"""
-        # Example: OpenAI API call
-        # import openai
-        # response = openai.ChatCompletion.create(
-        #     model="gpt-3.5-turbo",
-        #     messages=[{"role": "user", "content": message}]
-        # )
-        # return response.choices[0].message.content
-        return "LLM API not configured"
+            return "I can help you analyze your transactions, detect fraud, and generate forecasts. What would you like to know?"
     
     def _get_timestamp(self) -> str:
         """Get current timestamp"""

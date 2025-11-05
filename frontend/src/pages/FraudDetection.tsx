@@ -197,22 +197,25 @@ export default function FraudDetection() {
                   try {
                     // Create alert first if not exists
                     const alerts = await apiClient.getAlerts(transaction.userId);
-                    let alert = alerts.find((a: any) => a.transactionId === transaction.id);
+                    let alertRecord = alerts.find((a: any) => a.transactionId === transaction.id);
                     
-                    if (!alert) {
-                      // Create alert
-                      alert = await apiClient.createCase({
+                    if (!alertRecord) {
+                      // Create alert first
+                      alertRecord = await apiClient.createAlert({
                         userId: transaction.userId,
-                        alertId: transaction.id,
-                        summary: `High-risk transaction detected: $${transaction.amount} from ${transaction.merchant || 'Unknown'}`,
+                        transactionId: transaction.id,
+                        type: 'fraud',
+                        message: `High-risk transaction detected: $${transaction.amount} from ${transaction.merchant || 'Unknown'}`,
+                        severity: (transaction.fraudScore || 0) > 80 ? 'high' : 'medium',
+                        status: 'open'
                       });
                     }
                     
-                    // Create case
+                    // Create case with the alert ID
                     await apiClient.createCase({
                       userId: transaction.userId,
-                      alertId: alert.id,
-                      summary: `AML Case created for transaction ${transaction.id}. Amount: $${transaction.amount}, Fraud Score: ${transaction.fraudScore}%`,
+                      alertId: alertRecord.id,
+                      summary: `AML Case created for transaction ${transaction.id}. Amount: $${transaction.amount}, Fraud Score: ${transaction.fraudScore || 0}%`,
                     });
                     
                     alert("AML Case created successfully");
