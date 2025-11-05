@@ -47,14 +47,21 @@ router.post('/scan', async (req: Request, res: Response) => {
         }
       });
       
-      // Analyze transaction
-      const analysis = analyzeTransaction({
+      // Get user's recent transaction history for context
+      const userHistory = await prisma.transaction.findMany({
+        where: { userId: tx.userId },
+        orderBy: { createdAt: 'desc' },
+        take: 10
+      });
+      
+      // Analyze transaction (now async)
+      const analysis = await analyzeTransaction({
         amount: tx.amount,
         location: tx.country || tx.location || undefined,
         type: tx.type || 'debit',
         description: tx.description || undefined,
         frequency: userTxCount
-      });
+      }, userHistory);
       
       // Update transaction with fraud analysis
       const updated = await prisma.transaction.update({
@@ -144,14 +151,21 @@ router.get('/:id', async (req: Request, res: Response) => {
       }
     });
     
-    // Analyze transaction
-    const analysis = analyzeTransaction({
+    // Get user's recent transaction history for context
+    const userHistory = await prisma.transaction.findMany({
+      where: { userId: transaction.userId },
+      orderBy: { createdAt: 'desc' },
+      take: 10
+    });
+    
+    // Analyze transaction (now async)
+    const analysis = await analyzeTransaction({
       amount: transaction.amount,
       location: transaction.country || transaction.location || undefined,
       type: transaction.type || 'debit',
       description: transaction.description || undefined,
       frequency: userTxCount
-    });
+    }, userHistory);
     
     res.json({
       transaction: {
@@ -216,13 +230,13 @@ router.get('/explain/:id', async (req: Request, res: Response) => {
       : 0;
     
     // Analyze transaction to get feature contributions
-    const analysis = analyzeTransaction({
+    const analysis = await analyzeTransaction({
       amount: transaction.amount,
       location: transaction.country || transaction.location || undefined,
       type: transaction.type || 'debit',
       description: transaction.description || undefined,
       frequency: userTxCount
-    });
+    }, recentTransactions);
     
     // Calculate feature contributions (simulated)
     const features: any[] = [];

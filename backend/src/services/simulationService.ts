@@ -10,6 +10,8 @@
  * The simulation uses random but structured outputs to mimic real AI behavior.
  */
 
+import { simulationAPI } from './mlApiClient';
+
 export interface SimulationInput {
   name?: string;
   data: any; // Can be numbers, text, arrays, objects, etc.
@@ -50,6 +52,30 @@ export const simulateAIProcessing = async (
   console.log(`📊 Input data type: ${input.type || 'general'}`);
   console.log(`📥 Input data:`, JSON.stringify(input.data).substring(0, 100) + '...');
 
+  // Try to use ML service first
+  try {
+    const mlResult = await simulationAPI.process(
+      input.name,
+      input.data,
+      input.type,
+      input.parameters
+    );
+    
+    if (mlResult && mlResult.output && mlResult.metrics) {
+      console.log(`✅ Simulation completed via ML service`);
+      console.log(`📈 Accuracy: ${(mlResult.metrics.accuracy * 100).toFixed(2)}%`);
+      console.log(`📉 Loss: ${mlResult.metrics.loss.toFixed(4)}`);
+      
+      return {
+        output: mlResult.output,
+        metrics: mlResult.metrics
+      };
+    }
+  } catch (error) {
+    console.warn('ML service unavailable, using fallback:', error);
+  }
+
+  // Fallback to mock processing
   const startTime = Date.now();
   
   // Simulate processing delay (50ms to 500ms)

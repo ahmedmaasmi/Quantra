@@ -1,0 +1,16 @@
+# Ignore trained model files (can be large)
+*.pkl
+*.h5
+*.joblib
+*.pt
+*.pth
+*.onnx
+
+# Ignore model directories with large files
+**/chatbot_model/
+**/document_ocr_model/
+
+# Keep directory structure
+!.gitkeep
+!README.md
+
