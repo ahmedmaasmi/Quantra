@@ -37,7 +37,7 @@ class ChatService:
     ) -> Dict[str, Any]:
         """Process chat message with AI using OpenRouter"""
         try:
-            # Try to use OpenRouter API first
+            
             response = await self._call_openrouter_api(message, userId, context)
             return {
                 'message': response,
