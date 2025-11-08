@@ -12,6 +12,7 @@ import chatRouter from "./routes/chat";
 import fraudRouter from "./routes/fraud";
 import casesRouter from "./routes/cases";
 import dashboardRouter from "./routes/dashboard";
+import simulationsRouter from "./routes/simulations";
 
 dotenv.config();
 
@@ -36,7 +37,8 @@ app.get("/", (_: express.Request, res: express.Response) => res.json({
       chat: "/api/chat",
       fraud: "/api/fraud",
       cases: "/api/cases",
-      dashboard: "/api/dashboard"
+      dashboard: "/api/dashboard",
+      simulations: "/api/simulations"
     }
 }));
 
@@ -49,8 +51,9 @@ app.use("/api/chat", chatRouter);
 app.use("/api/fraud", fraudRouter);
 app.use("/api/cases", casesRouter);
 app.use("/api/dashboard", dashboardRouter);
+app.use("/api/simulations", simulationsRouter);
 console.log("✅ Dashboard route registered at /api/dashboard");
-console.log("Dashboard router type:", typeof dashboardRouter);
+console.log("✅ Simulations route registered at /api/simulations");
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

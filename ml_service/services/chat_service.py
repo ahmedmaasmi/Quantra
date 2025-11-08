@@ -63,6 +63,13 @@ class ChatService:
         context: Optional[Dict[str, Any]]
     ) -> str:
         """Call OpenRouter API for chat completion"""
+        # Validate API key and URL are set
+        if not self.openrouter_api_key:
+            raise Exception("OpenRouter API key is not configured. Please set OPENROUTER_API_KEY environment variable.")
+        
+        if not self.openrouter_url:
+            raise Exception("OpenRouter URL is not configured. Please set OPENROUTER_URL environment variable.")
+        
         # Build system message with context
         system_message = self._build_system_message(userId, context)
         
@@ -84,8 +91,8 @@ class ChatService:
         
         headers = {
             "Authorization": f"Bearer {self.openrouter_api_key}",
-            "HTTP-Referer": self.site_url,
-            "X-Title": self.site_name,
+            "HTTP-Referer": self.site_url or "https://quantra.app",
+            "X-Title": self.site_name or "Quantra",
             "Content-Type": "application/json"
         }
         
@@ -101,6 +108,9 @@ class ChatService:
                         return data["choices"][0]["message"]["content"]
                     else:
                         raise Exception("No choices in API response")
+                elif response.status == 401:
+                    error_text = await response.text()
+                    raise Exception(f"OpenRouter API authentication failed (401): Invalid API key. Please check your OPENROUTER_API_KEY environment variable. Error: {error_text}")
                 else:
                     error_text = await response.text()
                     raise Exception(f"OpenRouter API error: {response.status} - {error_text}")

@@ -1,5 +1,8 @@
 import { Router, Request, Response } from 'express';
 import axios from 'axios';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+import { parse } from 'csv-parse/sync';
 
 const router = Router();
 
@@ -78,7 +81,10 @@ router.get('/', async (req: Request, res: Response) => {
     
     // Calculate fraud detected amount
     const flaggedTxData = transactionsArray.filter((t: any) => t.isFlagged === true);
-    const fraudDetectedAmount = flaggedTxData.reduce((sum: number, tx: any) => sum + Math.abs(tx.amount || 0), 0);
+    const fraudDetectedAmount = flaggedTxData.reduce((sum: number, tx: any) => {
+      const amount = parseFloat(tx.amount) || 0;
+      return sum + Math.abs(amount);
+    }, 0);
 
     // Process cases data
     const casesArray = Array.isArray(cases) ? cases : [];
@@ -105,21 +111,55 @@ router.get('/', async (req: Request, res: Response) => {
       ? (openCases / totalAlerts) * 100 
       : 0;
 
-    // Get transaction volume for last 7 days
-    const now = new Date();
-    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    // Get transaction volume for last 7 days - read directly from CSV file
+    let csvTransactions: any[] = [];
+    try {
+      const projectRoot = join(__dirname, '..', '..', '..');
+      const transactionsPath = join(projectRoot, 'data', 'transactions.csv');
+      const fileContent = readFileSync(transactionsPath, 'utf-8');
+      
+      csvTransactions = parse(fileContent, {
+        columns: true,
+        skip_empty_lines: true,
+        trim: true
+      }) as any[];
+      
+      console.log(`📊 Loaded ${csvTransactions.length} transactions from CSV for volume calculation`);
+    } catch (error: any) {
+      console.warn(`⚠️  Could not read transactions.csv: ${error.message}. Falling back to database transactions.`);
+      csvTransactions = transactionsArray;
+    }
     
-    const recentTransactions = transactionsArray.filter((tx: any) => {
+    // Find the most recent transaction date to use as reference (handles future dates in CSV)
+    let referenceDate = new Date();
+    referenceDate.setHours(0, 0, 0, 0);
+    
+    if (csvTransactions.length > 0) {
+      const allTransactionDates = csvTransactions.map((tx: any) => {
+        const txDate = new Date(tx.timestamp || tx.createdAt);
+        txDate.setHours(0, 0, 0, 0);
+        return txDate;
+      });
+      const mostRecentDate = new Date(Math.max(...allTransactionDates.map((d: Date) => d.getTime())));
+      // Use the most recent transaction date as reference
+      referenceDate = mostRecentDate;
+    }
+    
+    const sevenDaysAgo = new Date(referenceDate);
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6); // 6 days ago + reference date = 7 days total
+    
+    const recentTransactions = csvTransactions.filter((tx: any) => {
       const txDate = new Date(tx.timestamp || tx.createdAt);
-      return txDate >= sevenDaysAgo;
+      txDate.setHours(0, 0, 0, 0);
+      return txDate >= sevenDaysAgo && txDate <= referenceDate;
     });
 
-    // Group by date
+    // Group by date - last 7 days from most recent transaction
     const transactionVolumeByDate: { [key: string]: { volume: number; alerts: number } } = {};
     
     for (let i = 0; i < 7; i++) {
-      const date = new Date(now);
-      date.setDate(date.getDate() - (6 - i));
+      const date = new Date(referenceDate);
+      date.setDate(date.getDate() - (6 - i)); // i=0: 6 days ago, i=6: reference date
       const dateStr = date.toISOString().split('T')[0];
       transactionVolumeByDate[dateStr] = { volume: 0, alerts: 0 };
     }
@@ -127,18 +167,28 @@ router.get('/', async (req: Request, res: Response) => {
     recentTransactions.forEach((tx: any) => {
       const txDate = new Date(tx.timestamp || tx.createdAt);
       const dateStr = txDate.toISOString().split('T')[0];
+      // Use amount directly from CSV
+      const amount = parseFloat(tx.amount) || 0;
       if (transactionVolumeByDate[dateStr]) {
-        transactionVolumeByDate[dateStr].volume += Math.abs(tx.amount || 0);
-        if (tx.isFlagged) {
+        transactionVolumeByDate[dateStr].volume += Math.abs(amount);
+        if (tx.isFlagged === 'true' || tx.isFlagged === true) {
+          transactionVolumeByDate[dateStr].alerts += 1;
+        }
+      } else {
+        // If date is not in the 7-day range, add it anyway to show all data
+        transactionVolumeByDate[dateStr] = transactionVolumeByDate[dateStr] || { volume: 0, alerts: 0 };
+        transactionVolumeByDate[dateStr].volume += Math.abs(amount);
+        if (tx.isFlagged === 'true' || tx.isFlagged === true) {
           transactionVolumeByDate[dateStr].alerts += 1;
         }
       }
     });
 
-    // Get alerts for same period
+    // Get alerts for same period (last 7 days from reference date)
     const recentAlertData = alertsArray.filter((alert: any) => {
       const alertDate = new Date(alert.createdAt);
-      return alertDate >= sevenDaysAgo;
+      alertDate.setHours(0, 0, 0, 0);
+      return alertDate >= sevenDaysAgo && alertDate <= referenceDate;
     });
 
     recentAlertData.forEach((alert: any) => {
@@ -148,11 +198,30 @@ router.get('/', async (req: Request, res: Response) => {
       }
     });
 
-    const transactionVolume = Object.entries(transactionVolumeByDate).map(([date, data]) => ({
-      date: new Date(date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }),
-      volume: data.volume,
-      alerts: data.alerts
-    }));
+    // Format dates and include today indicator
+    const todayStr = new Date().toISOString().split('T')[0];
+    const referenceDateStr = referenceDate.toISOString().split('T')[0];
+    const transactionVolume = Object.entries(transactionVolumeByDate)
+      .sort(([dateA], [dateB]) => dateA.localeCompare(dateB)) // Sort chronologically
+      .map(([date, data]) => {
+        const dateObj = new Date(date);
+        const isToday = date === todayStr;
+        const isReferenceDate = date === referenceDateStr;
+        const dateLabel = dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        let label = dateLabel;
+        if (isToday) {
+          label = `${dateLabel} (Today)`;
+        } else if (isReferenceDate && !isToday) {
+          label = `${dateLabel} (Latest)`;
+        }
+        return {
+          date: label,
+          volume: data.volume,
+          alerts: data.alerts,
+          rawDate: date,
+          isToday
+        };
+      });
 
     // Format recent alerts
     const formattedRecentAlerts = recentAlerts.map((alert: any) => {
@@ -171,6 +240,10 @@ router.get('/', async (req: Request, res: Response) => {
       };
     });
 
+    // Calculate date range for display
+    const startDate = sevenDaysAgo.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const endDate = referenceDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    
     const response = {
       metrics: {
         kycVerifications: approvedUsers,
@@ -185,13 +258,23 @@ router.get('/', async (req: Request, res: Response) => {
         totalAlerts
       },
       transactionVolume,
-      recentAlerts: formattedRecentAlerts
+      recentAlerts: formattedRecentAlerts,
+      dateRange: {
+        start: startDate,
+        end: endDate,
+        today: new Date().toISOString().split('T')[0],
+        referenceDate: referenceDateStr
+      }
     };
 
     console.log("📊 Dashboard data prepared:", {
       metrics: response.metrics,
       transactionVolumeCount: response.transactionVolume.length,
-      recentAlertsCount: response.recentAlerts.length
+      recentAlertsCount: response.recentAlerts.length,
+      totalTransactions: totalTransactions,
+      recentTransactionsCount: recentTransactions.length,
+      referenceDate: referenceDateStr,
+      transactionVolumeSample: response.transactionVolume.slice(0, 3)
     });
 
     res.json(response);

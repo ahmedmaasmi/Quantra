@@ -23,12 +23,22 @@ class ApiClient {
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
     
+    // Get JWT token from localStorage
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    };
+    
+    // Add Authorization header if token exists
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
     const config: RequestInit = {
       ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
+      headers,
     };
 
     try {
@@ -133,6 +143,24 @@ class ApiClient {
     });
   }
 
+  async markAlertAsRead(alertId: string) {
+    return this.request<any>(`/alerts/${alertId}/read`, {
+      method: 'PATCH',
+    });
+  }
+
+  async markAllAlertsAsRead(userId: string) {
+    return this.request<{ updated: number }>(`/alerts/user/${userId}/read-all`, {
+      method: 'PATCH',
+    });
+  }
+
+  async deleteAlert(alertId: string) {
+    return this.request<void>(`/alerts/${alertId}`, {
+      method: 'DELETE',
+    });
+  }
+
   // Forecast
   async getForecast(userId: string, months = 3) {
     return this.request<any>(`/forecast/${userId}?months=${months}`);
@@ -164,8 +192,16 @@ class ApiClient {
   // KYC
   async uploadKYC(userId: string, formData: FormData) {
     const url = `${this.baseUrl}/users/${userId}/kyc`;
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    
+    const headers: HeadersInit = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
     const response = await fetch(url, {
       method: 'POST',
+      headers,
       body: formData,
     });
     if (!response.ok) {
@@ -228,9 +264,64 @@ class ApiClient {
     });
   }
 
+  async assignCase(caseId: string, assignedTo: string) {
+    return this.request<any>(`/cases/${caseId}/assign`, {
+      method: 'PATCH',
+      body: JSON.stringify({ assignedTo }),
+    });
+  }
+
   // Dashboard Stats
   async getDashboardStats() {
     return this.request<any>('/dashboard');
+  }
+
+  // Chat
+  async sendChatMessage(message: string, userId?: string | null, context?: any) {
+    return this.request<{ message: string; timestamp: string; userId?: string; data?: any }>('/chat', {
+      method: 'POST',
+      body: JSON.stringify({ message, userId, context }),
+    });
+  }
+
+  async getChatHistory(userId: string) {
+    return this.request<any[]>(`/chat/${userId}`);
+  }
+
+  // Simulations
+  async createSimulation(data: { name?: string; data: any; type?: string; parameters?: any }) {
+    return this.request<any>('/simulations/simulate', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async getSimulations(status?: string, limit = 50, offset = 0) {
+    const params = new URLSearchParams();
+    if (status) params.append('status', status);
+    params.append('limit', limit.toString());
+    params.append('offset', offset.toString());
+    return this.request<{ simulations: any[]; total: number; limit: number; offset: number }>(`/simulations/simulations?${params.toString()}`);
+  }
+
+  async getSimulation(simulationId: string) {
+    return this.request<any>(`/simulations/simulations/${simulationId}`);
+  }
+
+  async getSimulationMetrics() {
+    return this.request<any>('/simulations/metrics');
+  }
+
+  async deleteSimulation(simulationId: string) {
+    return this.request<{ message: string; id: string }>(`/simulations/simulations/${simulationId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async deleteAllSimulations() {
+    return this.request<{ message: string; deletedCount: number }>('/simulations/simulations', {
+      method: 'DELETE',
+    });
   }
 
   private formatTimestamp(date: string | Date): string {

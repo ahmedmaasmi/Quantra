@@ -53,8 +53,7 @@ router.post('/simulate', async (req: Request, res: Response) => {
       data: {
         name: simulationName,
         status: 'pending',
-        inputData: data as any,
-        outputData: null
+        inputData: data as any
       }
     });
     

@@ -38,19 +38,19 @@ export default function HeroPage() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-900 via-green-900 to-slate-900">
       {/* Aurora Background Effect */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-green-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-emerald-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-teal-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
       </div>
 
       {/* Blob Cursor Effect */}
       <div className="fixed inset-0 pointer-events-none z-50">
         <div
           id="blob-cursor"
-          className="absolute w-32 h-32 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full opacity-30 blur-2xl transition-transform duration-300"
+          className="absolute w-32 h-32 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full opacity-30 blur-2xl transition-transform duration-300"
           style={{ transform: "translate(-50%, -50%)" }}
         ></div>
       </div>
@@ -63,7 +63,7 @@ export default function HeroPage() {
             <h1 className="text-6xl lg:text-7xl font-bold text-white mb-4">
               Quantra
             </h1>
-            <p className="text-xl lg:text-2xl text-purple-200 mb-6">
+            <p className="text-xl lg:text-2xl text-green-200 mb-6">
               Enterprise Risk Intelligence Platform
             </p>
             <p className="text-lg text-gray-300">
@@ -132,7 +132,7 @@ export default function HeroPage() {
                 </div>
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+                  className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
                   disabled={isSigningIn}
                 >
                   {isSigningIn ? (

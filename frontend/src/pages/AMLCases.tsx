@@ -159,7 +159,48 @@ export default function AMLCases() {
               </CardTitle>
               {selectedCase && (
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={async () => {
+                      if (selectedCase) {
+                        try {
+                          // Get current user from localStorage
+                          const userStr = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+                          let assignedTo = 'Unassigned';
+                          
+                          if (userStr) {
+                            try {
+                              const user = JSON.parse(userStr);
+                              assignedTo = user.name || user.email || 'Unassigned';
+                            } catch (e) {
+                              // Ignore parse errors
+                            }
+                          }
+                          
+                          // Prompt for assignee name if needed
+                          const assigneeName = prompt('Enter assignee name:', assignedTo);
+                          if (assigneeName === null) return; // User cancelled
+                          
+                          await apiClient.assignCase(selectedCase.id, assigneeName);
+                          const updated = await apiClient.getCase(selectedCase.id);
+                          setSelectedCase(updated);
+                          const casesData = await apiClient.getCases();
+                          setCases(casesData);
+                          toast({
+                            title: "Case assigned",
+                            description: `Case assigned to ${assigneeName}`,
+                          });
+                        } catch (error: any) {
+                          toast({
+                            title: "Error assigning case",
+                            description: error.message,
+                            variant: "destructive",
+                          });
+                        }
+                      }
+                    }}
+                  >
                     Assign
                   </Button>
                   <Button 

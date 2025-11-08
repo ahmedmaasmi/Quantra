@@ -39,4 +39,24 @@ case_037,usr_018,alert_037,Transaction amount deviation,assigned,Maria Garcia,St
 case_038,usr_022,alert_038,Merchant blacklist match,open,Unassigned,Merchant verification,2024-12-26T14:15:00Z
 case_039,usr_025,alert_039,Device location anomaly,assigned,John Smith,Security review,2024-12-27T11:30:00Z
 case_040,usr_028,alert_040,Cross-border transaction pattern,open,Unassigned,International compliance check,2024-12-28T09:00:00Z
+case_041,usr_031,alert_041,High-value wire transfer: $19500.00 to Switzerland,assigned,Sarah Chen,International wire review,2025-01-02T10:15:00Z
+case_042,usr_032,alert_042,Unusual transaction pattern detected,open,Unassigned,Pattern analysis required,2025-01-03T14:30:00Z
+case_043,usr_033,alert_043,Large cash withdrawal: $12500.00,assigned,John Smith,Cash transaction reporting,2025-01-04T09:45:00Z
+case_044,usr_034,alert_044,Transaction from sanctioned entity,open,Unassigned,Sanctions screening required,2025-01-05T11:20:00Z
+case_045,usr_035,alert_045,Multiple high-value transactions in short period,assigned,Maria Garcia,Velocity analysis,2025-01-06T15:00:00Z
+case_046,usr_036,alert_046,Suspicious merchant category pattern,open,Unassigned,Merchant analysis,2025-01-07T08:30:00Z
+case_047,usr_037,alert_047,International transaction to high-risk jurisdiction,assigned,Sarah Chen,Geographic risk assessment,2025-01-08T13:15:00Z
+case_048,usr_038,alert_048,Transaction amount significantly above average,open,Unassigned,Statistical deviation review,2025-01-09T10:45:00Z
+case_049,usr_039,alert_049,Offshore account transfer: $16800.00,assigned,John Smith,Offshore account investigation,2025-01-10T16:30:00Z
+case_050,usr_040,alert_050,Device and location mismatch detected,open,Unassigned,Security review,2025-01-11T09:20:00Z
+case_051,usr_041,alert_051,Large cryptocurrency transaction: $14200.00,assigned,Maria Garcia,Crypto monitoring,2025-01-12T14:00:00Z
+case_052,usr_042,alert_052,Transaction during unusual hours,open,Unassigned,Off-hours activity review,2025-01-13T11:30:00Z
+case_053,usr_043,alert_053,Multiple account linkage detected,assigned,Sarah Chen,Account relationship mapping,2025-01-14T08:15:00Z
+case_054,usr_044,alert_054,High-risk country transaction: $11200.00 to Syria,open,Unassigned,Critical sanctions check,2025-01-15T12:45:00Z
+case_055,usr_045,alert_055,Merchant blacklist match,assigned,John Smith,Merchant verification,2025-01-16T10:00:00Z
+case_056,usr_046,alert_056,Transaction velocity spike,open,Unassigned,Velocity monitoring,2025-01-17T15:30:00Z
+case_057,usr_047,alert_057,Cross-border pattern anomaly,assigned,Maria Garcia,International compliance review,2025-01-18T09:45:00Z
+case_058,usr_048,alert_058,Large transfer to tax haven: $19800.00,open,Unassigned,Tax haven investigation,2025-01-19T13:20:00Z
+case_059,usr_049,alert_059,Behavioral pattern deviation,assigned,Sarah Chen,Behavioral analysis,2025-01-20T11:00:00Z
+case_060,usr_050,alert_060,Multiple failed authentication attempts,open,Unassigned,Security review,2025-01-21T14:15:00Z
 

@@ -217,11 +217,31 @@ export const kycAPI = {
 };
 
 /**
+ * Simulation API types
+ */
+export interface SimulationProcessResponse {
+  output: {
+    predictions?: any[];
+    patterns?: string[];
+    classifications?: Record<string, any>;
+    analysis?: Record<string, any>;
+    confidence: number;
+    insights: string[];
+    metadata: Record<string, any>;
+  };
+  metrics: {
+    accuracy: number;
+    loss: number;
+    duration: number;
+  };
+}
+
+/**
  * Simulation API calls
  */
 export const simulationAPI = {
-  process: async (name: string | undefined, data: any, type?: string, parameters?: any) => {
-    return callMLService('/api/simulation/process', 'POST', {
+  process: async (name: string | undefined, data: any, type?: string, parameters?: any): Promise<SimulationProcessResponse | null> => {
+    return callMLService<SimulationProcessResponse>('/api/simulation/process', 'POST', {
       name,
       data,
       type,

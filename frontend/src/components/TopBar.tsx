@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Bell, Search, User } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Bell, Search, User, LogOut, Settings, UserCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,10 +10,12 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import apiClient from "@/lib/api";
 
 export function TopBar() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -86,16 +89,23 @@ export function TopBar() {
     }
   };
 
+  const handleSignOut = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    router.push("/hero");
+  };
+
   return (
     <header className="h-16 bg-card border-b border-border flex items-center justify-between px-6">
-      <form onSubmit={handleSearch} className="flex items-center gap-4 flex-1 max-w-xl">
+      <form onSubmit={handleSearch} className="flex items-center gap-3 flex-1 max-w-xl">
         <Search className="h-5 w-5 text-muted-foreground" />
         <Input
-          placeholder="Search transactions, users, cases..."
-          className="bg-secondary border-0"
+          placeholder="Search task"
+          className="bg-background border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
+        <span className="text-xs text-muted-foreground hidden sm:inline">⌘F</span>
       </form>
 
       <div className="flex items-center gap-4">
@@ -137,15 +147,34 @@ export function TopBar() {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <div className="flex items-center gap-3 pl-4 border-l border-border">
-          <div className="text-right">
-            <p className="text-sm font-medium">{user?.name || "User"}</p>
-            <p className="text-xs text-muted-foreground">Risk Analyst</p>
-          </div>
-          <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center">
-            <User className="h-5 w-5" />
-          </div>
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="flex items-center gap-3 pl-4 border-l border-border hover:opacity-80 transition-opacity cursor-pointer">
+              <div className="text-right">
+                <p className="text-sm font-medium">{user?.name || "User"}</p>
+                <p className="text-xs text-muted-foreground">{user?.email || "Risk Analyst"}</p>
+              </div>
+              <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center">
+                <User className="h-5 w-5 text-primary-foreground" />
+              </div>
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuItem>
+              <UserCircle className="mr-2 h-4 w-4" />
+              <span>Profile</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Settings className="mr-2 h-4 w-4" />
+              <span>Settings</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Sign Out</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   );
